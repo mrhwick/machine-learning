@@ -75,7 +75,7 @@ Generating positions by picking previously observed board states and choosing al
 
 Finally, my own strategy would likely create a series of "final play" strategies, which would be unlikely to play well at the beginning of each game, but perform well in a variety of end-game configurations. In the cases where it encountered less skilled human players, which are more prone to possibly making mistakes, this algorithm would generate strategies that would take advantage of late-game ineffectiveness in the humans' strategies. A human would likely discover a strategy which would lure this system into moves which are ineffective in the earliest portions of the game, thus overcoming the relative late-game strength of the system.
 
-# 1.5
+## 1.5
 
 >Implement an algorithm similar to that discussed for the checkers problem, but use the simpler game of tic-tac-toe. Represent the learned function V as a linear combination of board features of your choice. To train your program, play it repeatedly against a second copy of the program that uses a fixed evaluation function you create by hand. Plot the percent of games won by your system, versus the number of training games played.
 
