@@ -389,6 +389,7 @@ def choose_move(board, weights, _type):
 			best_move_board_value = proposed_value
 	if not best_move:
 		best_move = empty_positions[random.randint(0, len(empty_positions) - 1)]
+		# best_move = empty_positions[0]
 
 	return best_move
 
@@ -411,6 +412,7 @@ def run_performance(weights, _type):
 			# print()
 			# print('It is x turn')
 			# print_board(board)
+			# move = pick_move_by_simple_strategy(board, opponent)
 			move = choose_move(board, weights, _type)
 			board = make_move(board, move, _type)
 			is_x_turn = not is_x_turn
@@ -433,7 +435,7 @@ def run_performance(weights, _type):
 
 	return trace_boards, winner
 
-def create_training_examples_from_trace(board_trace, weights, _type):
+def create_training_examples_from_trace(board_trace, weights, _type, rewards):
 	examples = []
 	for i in range(len(board_trace)):
 		board = board_trace[i]
@@ -441,24 +443,26 @@ def create_training_examples_from_trace(board_trace, weights, _type):
 		if was_victory:
 			if victor == ' ':
 				# We had a draw
-				examples.append((board, 0))
+				examples.append((board, rewards['draw']))
 
 			if victor == _type:
 				# We won
-				examples.append((board, 100))
+				examples.append((board, rewards['win']))
 			else:
 				# We lost
-				examples.append((board, -100))
+				examples.append((board, rewards['loss']))
 		else:
 			next_board_index = i + 2
-			if next_board_index > len(board_trace):
-				continue
-			next_board = board_trace[i]
+			if next_board_index >= len(board_trace):
+				next_board_index = i + 1
+				if next_board_index >= len(board_trace):
+					next_board_index = i
+			next_board = board_trace[next_board_index]
 			examples.append((board, estimate_value_by_hypothesis(board, weights, _type)))
 	return examples
 
 def generalize_examples_into_new_weights(examples, weights, _type):
-	training_constant = 0.05
+	training_constant = 0.00001
 	new_weights = [weight for weight in weights]
 
 	for board, value in examples:
@@ -517,8 +521,39 @@ def generalize_examples_into_new_weights(examples, weights, _type):
 
 ############## Main Loop
 
+weights = [
+	0.15166667342004095,
+	0.0,
+	0.009999681973250078,
+	-0.00020010402584,
+	-0.00020010402584,
+	0.0,
+	-0.00050031207752,
+	1.204734433567957,
+	-0.00050020805168,
+	0.009599473921570078,
+	0.7587335751518841,
+	0.6068667977060039,
+	-0.0006003120775200001,
+	-0.15086653742004094,
+	-0.151766673420041,
+	0.15196688147172102,
+	0.1318673094735406,
+	0.151766673420041,
+	-0.13196741349938054,
+	-0.13176741349938062,
+	0.15166667342004095,
+	0.13096727749938056
+]
+
 weights = [0.0] * 22
-_type = 'x'
+_type = 'o'
+opponent = 'x'
+rewards = {
+	'draw': 100,
+	'win': 1,
+	'loss': -1,
+}
 
 our_wins = 0
 their_wins = 0
@@ -528,14 +563,14 @@ total_games = 0
 while True:
 	trace, winner = run_performance(weights, _type)
 	total_games = total_games + 1
-	if 'x' == winner:
+	if _type == winner:
 		our_wins = our_wins + 1
-	if 'o' == winner:
+	if opponent == winner:
 		their_wins = their_wins + 1
 	if ' ' == winner:
 		draws = draws + 1
 
-	examples = create_training_examples_from_trace(trace, weights, _type)
+	examples = create_training_examples_from_trace(trace, weights, _type, rewards)
 	weights = generalize_examples_into_new_weights(examples, weights, _type)
 
 	percent_winning = our_wins / total_games
