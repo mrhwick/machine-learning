@@ -314,9 +314,9 @@ def atomic_value(position, _type):
 	if position == ' ':
 		return 0
 	elif position == _type:
-		return 1
+		return 100
 	else:
-		return -1
+		return -100
 
 def estimate_value_by_hypothesis(board, weights, _type):
 	if len(weights) != 22:
@@ -462,7 +462,7 @@ def create_training_examples_from_trace(board_trace, weights, _type, rewards):
 	return examples
 
 def generalize_examples_into_new_weights(examples, weights, _type):
-	training_constant = 0.00001
+	training_constant = 0.0000001
 	new_weights = [weight for weight in weights]
 
 	for board, value in examples:
@@ -522,37 +522,37 @@ def generalize_examples_into_new_weights(examples, weights, _type):
 ############## Main Loop
 
 weights = [
-	0.15166667342004095,
-	0.0,
-	0.009999681973250078,
-	-0.00020010402584,
-	-0.00020010402584,
-	0.0,
-	-0.00050031207752,
-	1.204734433567957,
-	-0.00050020805168,
-	0.009599473921570078,
-	0.7587335751518841,
-	0.6068667977060039,
-	-0.0006003120775200001,
-	-0.15086653742004094,
-	-0.151766673420041,
-	0.15196688147172102,
-	0.1318673094735406,
-	0.151766673420041,
-	-0.13196741349938054,
-	-0.13176741349938062,
-	0.15166667342004095,
-	0.13096727749938056
-]
+	0.002072306341060332,
+	0.0012080644312910758,
+	0.0055409784646103,
+	-0.002425191566942204,
+	0.0003917218081832788,
+	0.0006802821854087128,
+	0.005642334855468521,
+	0.00615617913686461,
+	0.0012000358914464888,
+	0.002371836413411961,
+	0.007777832930232056,
+	0.0087695022797556,
+	0.0021034218595553295,
+	-0.05730113986651514,
+	-0.13553814571049153,
+	0.17616325691921286,
+	-0.09443045463242464,
+	0.1591895754187256,
+	0.014618239330794253,
+	0.1610134934043951,
+	0.18112438273988174,
+	-0.12857107567907597,
+ ]
 
-weights = [0.0] * 22
+# weights = [0.0] * 22
 _type = 'o'
 opponent = 'x'
 rewards = {
-	'draw': 100,
-	'win': 1,
-	'loss': -1,
+	'draw': 10,
+	'win': 100,
+	'loss': -10,
 }
 
 our_wins = 0
@@ -561,6 +561,18 @@ draws = 0
 total_games = 0
 
 while True:
+	if total_games % 2 == 0:
+		# total_games = 0
+		# our_wins = 0
+		# their_wins = 0
+		# draws = 0
+		if bool(random.getrandbits(1)):
+			_type = 'o'
+			opponent = 'x'
+		else:
+			_type = 'x'
+			opponent = 'o'
+
 	trace, winner = run_performance(weights, _type)
 	total_games = total_games + 1
 	if _type == winner:
@@ -580,9 +592,9 @@ while True:
 	print("their win rate", their_percent_winning * 100)
 	print("draw rate", draw_percentage * 100)
 	print(weights)
-	if percent_winning * 100 > 99.5:
-		print("We've acheived a 99.5% win rate, so we'll quit now.")
-		break
+	# if percent_winning * 100 > 99.5:
+	# 	print("We've acheived a 99.5% win rate, so we'll quit now.")
+	# 	break
 
 
 
